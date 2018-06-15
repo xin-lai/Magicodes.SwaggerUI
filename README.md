@@ -24,3 +24,17 @@ Magicodes SwaggerUI扩展库
     "ManifestResourceUrl": "Magicodes.Admin.Web.wwwroot.swagger.ui.index.html"
   },
 ```
+
+注入代码：
+
+//添加自定义API文档生成(支持文档配置)
+public IServiceProvider ConfigureServices(IServiceCollection services)
+{
+services.AddCustomSwaggerGen(_appConfiguration, _hostingEnvironment);
+}
+
+public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+{
+//启用自定义API文档(支持文档配置)
+app.UseCustomSwaggerUI(_appConfiguration);
+}
