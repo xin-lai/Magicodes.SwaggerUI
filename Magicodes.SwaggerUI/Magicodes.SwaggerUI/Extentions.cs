@@ -32,7 +32,10 @@ namespace Magicodes.SwaggerUI
                 //设置API文档生成
                 services.AddSwaggerGen(options =>
                 {
-                    options.DescribeAllEnumsAsStrings();
+                    //将所有枚举显示为字符串
+                    if (bool.Parse(configuration["SwaggerDoc:DescribeAllEnumsAsStrings"]))
+                        options.DescribeAllEnumsAsStrings();
+
                     options.SwaggerDoc("v1", new Info
                     {
                         Title = configuration["SwaggerDoc:Title"],
@@ -108,7 +111,7 @@ namespace Magicodes.SwaggerUI
                     //允许通过嵌入式资源配置首页
                     if (!string.IsNullOrWhiteSpace(configuration["SwaggerDoc:ManifestResourceUrl"]))
                     {
-                        options.IndexStream = () => 
+                        options.IndexStream = () =>
                         Assembly.Load(configuration["SwaggerDoc:ManifestResourceAssembly"])
                    .GetManifestResourceStream(configuration["SwaggerDoc:ManifestResourceUrl"]);
                     }

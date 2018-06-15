@@ -19,6 +19,8 @@ Magicodes SwaggerUI扩展库
       "IsEnabled": "false",
       "HiddenUrls": ""
     },
+    //将枚举值以字符串显示
+    "DescribeAllEnumsAsStrings": true,
     //设置api首页从嵌入资源中加载
     "ManifestResourceAssembly": "Magicodes.Admin.Web.Host",
     "ManifestResourceUrl": "Magicodes.Admin.Web.wwwroot.swagger.ui.index.html"
