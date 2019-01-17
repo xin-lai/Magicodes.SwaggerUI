@@ -29,6 +29,7 @@ namespace Magicodes.SwaggerUI
             }
             if (bool.Parse(configuration["SwaggerDoc:IsEnabled"]))
             {
+                var webRootDirectory = hostingEnvironment.WebRootPath ?? Directory.GetCurrentDirectory();
                 //设置API文档生成
                 services.AddSwaggerGen(options =>
                 {
@@ -54,21 +55,20 @@ namespace Magicodes.SwaggerUI
 
                     //遍历所有xml并加载
                     var paths = new List<string>();
-                    var plusPath = Path.Combine(hostingEnvironment.WebRootPath, "PlugIns");
-                    if (Directory.Exists(plusPath))
+                    if (!string.IsNullOrWhiteSpace(webRootDirectory) && Directory.Exists(webRootDirectory))
                     {
-                        var xmlFiles = new DirectoryInfo(plusPath).GetFiles("*.xml");
-                        foreach (var item in xmlFiles)
+                        var plusPath = Path.Combine(webRootDirectory, "PlugIns");
+                        if (Directory.Exists(plusPath))
                         {
-                            paths.Add(item.FullName);
+                            var xmlFiles = new DirectoryInfo(plusPath).GetFiles("*.xml");
+                            foreach (var item in xmlFiles)
+                            {
+                                paths.Add(item.FullName);
+                            }
                         }
                     }
+                    
                     var binXmlFiles = new DirectoryInfo(hostingEnvironment.ContentRootPath).GetFiles("*.xml", hostingEnvironment.EnvironmentName == "Development" ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-                    foreach (var item in binXmlFiles)
-                    {
-                        paths.Add(item.FullName);
-                    }
-                    binXmlFiles = new DirectoryInfo(hostingEnvironment.ContentRootPath).GetFiles("*.xml", hostingEnvironment.EnvironmentName == "Development" ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
                     foreach (var item in binXmlFiles)
                     {
                         paths.Add(item.FullName);
