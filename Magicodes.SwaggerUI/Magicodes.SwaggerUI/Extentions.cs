@@ -21,7 +21,7 @@ namespace Magicodes.SwaggerUI
         /// <param name="services"></param>
         /// <param name="configuration"></param>
         /// <param name="hostingEnvironment"></param>
-        public static void AddCustomSwaggerGen(this IServiceCollection services, IConfigurationRoot configuration, IHostingEnvironment hostingEnvironment)
+        public static void AddCustomSwaggerGen(this IServiceCollection services, IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             if (configuration?["SwaggerDoc:IsEnabled"] == null)
             {
@@ -95,7 +95,7 @@ namespace Magicodes.SwaggerUI
         /// </summary>
         /// <param name="app"></param>
         /// <param name="configuration"></param>
-        public static void UseCustomSwaggerUI(this IApplicationBuilder app, IConfigurationRoot configuration)
+        public static void UseCustomSwaggerUI(this IApplicationBuilder app, IConfiguration configuration)
         {
             if (configuration == null || configuration["SwaggerDoc:IsEnabled"] == null)
             {
