@@ -107,7 +107,7 @@ namespace Magicodes.SwaggerUI
                 // 加载swagger-ui 资源 (HTML, JS, CSS etc.)
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint($"/{configuration["SwaggerDoc: Name"]}/swagger.json", configuration["SwaggerDoc:Title"] ?? "App API V1");
+                    options.SwaggerEndpoint($"/{configuration["SwaggerDoc:Name"]}/swagger.json", configuration["SwaggerDoc:Title"] ?? "App API V1");
                     //允许通过嵌入式资源配置首页
                     if (!string.IsNullOrWhiteSpace(configuration["SwaggerDoc:ManifestResourceUrl"]))
                     {
