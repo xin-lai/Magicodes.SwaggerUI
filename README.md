@@ -6,6 +6,8 @@ Magicodes SwaggerUI扩展库
 ```
   "SwaggerDoc": {
     "IsEnabled": "true",
+	//Swagger 名称，1.7.8版本（包含1.7.8）以后都需要添加此配置
+	"Name":"Magicodes"
     "Title": "Api Documents",
     "Version": "v1",
     "Description": "",

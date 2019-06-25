@@ -37,7 +37,7 @@ namespace Magicodes.SwaggerUI
                     if (bool.Parse(configuration["SwaggerDoc:DescribeAllEnumsAsStrings"]))
                         options.DescribeAllEnumsAsStrings();
 
-                    options.SwaggerDoc("v1", new Info
+                    options.SwaggerDoc(configuration["SwaggerDoc:Name"], new Info
                     {
                         Title = configuration["SwaggerDoc:Title"],
                         Version = configuration["SwaggerDoc:Version"],
@@ -103,11 +103,11 @@ namespace Magicodes.SwaggerUI
             }
             if (bool.Parse(configuration["SwaggerDoc:IsEnabled"]))
             {
-                app.UseSwagger();
+                app.UseSwagger(c => { c.RouteTemplate = "{documentName}/swagger.json"; });
                 // 加载swagger-ui 资源 (HTML, JS, CSS etc.)
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", configuration["SwaggerDoc:Title"] ?? "App API V1");
+                    options.SwaggerEndpoint($"/{configuration["SwaggerDoc: Name"]}/swagger.json", configuration["SwaggerDoc:Title"] ?? "App API V1");
                     //允许通过嵌入式资源配置首页
                     if (!string.IsNullOrWhiteSpace(configuration["SwaggerDoc:ManifestResourceUrl"]))
                     {
