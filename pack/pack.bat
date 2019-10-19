@@ -13,10 +13,10 @@ set nupkg=""
 dotnet msbuild %2 /p:Configuration=Release
 
 :: 打包
-dotnet pack %2 -c Release --output ../../pack/nupkgs
+dotnet pack %2 -c Release --output ../pack/nupkgs
 
 :: 更新包名称
 for %%a in (dir /s /a /b "./nupkgs/%1") do (set nupkg=%%a)
 
 :: 推送包
-nuget push nupkgs/%nupkg% oy2cbltccrdccjzsw3oqsrw3wovbjmvermdogujqdik7ym -Source https://www.nuget.org/api/v2/package
+nuget push nupkgs/%nupkg% oy2ghhk55ztvfdolsgwaqmhiaqsoqh2ell3jkloh7oxt6u -Source https://www.nuget.org/api/v2/package

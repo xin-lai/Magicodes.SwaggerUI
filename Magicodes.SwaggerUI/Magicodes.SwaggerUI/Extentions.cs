@@ -10,9 +10,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Magicodes.SwaggerUI.Models;
+using Microsoft.Extensions.Options;
 
 namespace Magicodes.SwaggerUI
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class Extentions
     {
         /// <summary>
@@ -20,74 +25,109 @@ namespace Magicodes.SwaggerUI
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configuration"></param>
-        /// <param name="hostingEnvironment"></param>
-        public static void AddCustomSwaggerGen(this IServiceCollection services, IConfiguration configuration, IHostingEnvironment hostingEnvironment)
+        public static void AddCustomSwaggerGen(this IServiceCollection services, IConfiguration configuration)
         {
-            if (configuration?["SwaggerDoc:IsEnabled"] == null)
-            {
-                return;
-            }
-            if (bool.Parse(configuration["SwaggerDoc:IsEnabled"]))
-            {
-                var webRootDirectory = hostingEnvironment.WebRootPath ?? Directory.GetCurrentDirectory();
-                //设置API文档生成
-                services.AddSwaggerGen(options =>
-                {
-                    //将所有枚举显示为字符串
-                    if (bool.Parse(configuration["SwaggerDoc:DescribeAllEnumsAsStrings"]))
-                        options.DescribeAllEnumsAsStrings();
+            var docConfigInfo = GetApiDocsConfigInfo(configuration);
+            if (docConfigInfo == null) return;
 
-                    options.SwaggerDoc(configuration["SwaggerDoc:Name"], new Info
+            var webRootDirectory = Path.GetDirectoryName(typeof(Extentions).Assembly.Location);
+            //设置API文档生成
+            services.AddSwaggerGen(options =>
+            {
+                //将所有枚举显示为字符串
+                if (docConfigInfo.DescribeAllEnumsAsStrings)
+                    options.DescribeAllEnumsAsStrings();
+
+                if (docConfigInfo.Authorize)
+                    //以便于在界面上显示验证（Authorize）按钮，验证按钮处理逻辑基于 wwwroot/swagger/ui/index.html
+                    options.AddSecurityDefinition("Bearer", new BasicAuthScheme());
+
+                if (docConfigInfo.UseFullNameForSchemaId)
+                {
+                    //使用全名作为架构id
+                    options.CustomSchemaIds(p => p.FullName);
+                }
+
+                foreach (var doc in docConfigInfo.SwaggerDocInfos)
+                {
+                    options.SwaggerDoc(doc.GroupName ?? doc.Version, new Info
                     {
-                        Title = configuration["SwaggerDoc:Title"],
-                        Version = configuration["SwaggerDoc:Version"],
-                        Description = configuration["SwaggerDoc:Description"],
+                        Title = doc.Title,
+                        Version = doc.Version,
+                        Description = doc.Description,
                         Contact = new Contact
                         {
-                            Name = configuration["SwaggerDoc:Contact:Name"],
-                            Email = configuration["SwaggerDoc:Contact:Email"]
+                            Name = doc.Contact?.Name,
+                            Email = doc.Contact?.Email
                         }
                     });
+                }
 
-                    if (bool.Parse(configuration["SwaggerDoc:Authorize"] ?? "false"))
-                        //以便于在界面上显示验证（Authorize）按钮，验证按钮处理逻辑基于 wwwroot/swagger/ui/index.html
-                        options.AddSecurityDefinition("Bearer", new BasicAuthScheme());
+                //遍历所有xml并加载
+                var paths = new List<string>();
+                var plusPath = Path.Combine(webRootDirectory ?? throw new InvalidOperationException(), "PlugIns");
+                if (Directory.Exists(plusPath))
+                {
+                    var xmlFiles = new DirectoryInfo(plusPath).GetFiles("*.xml");
+                    paths.AddRange(xmlFiles.Select(item => item.FullName));
+                }
+                var binXmlFiles = new DirectoryInfo(webRootDirectory).GetFiles("*.xml", SearchOption.TopDirectoryOnly);
+                paths.AddRange(binXmlFiles.Select(item => item.FullName));
 
-                    //遍历所有xml并加载
-                    var paths = new List<string>();
-                    if (!string.IsNullOrWhiteSpace(webRootDirectory) && Directory.Exists(webRootDirectory))
+                foreach (var filePath in paths)
+                {
+                    options.IncludeXmlComments(filePath);
+                }
+
+                //接口分组和隐藏处理
+                options.DocInclusionPredicate((docName, apiDescription) =>
+                {
+                    //API隐藏逻辑处理
+                    if (docConfigInfo.HiddenApi != null && docConfigInfo.HiddenApi.IsEnabled && !string.IsNullOrEmpty(docConfigInfo.HiddenApi.HiddenUrls))
                     {
-                        var plusPath = Path.Combine(webRootDirectory, "PlugIns");
-                        if (Directory.Exists(plusPath))
+                        //获取隐藏的API路径(允许逗号分隔)
+                        var hiddenUrls = docConfigInfo.HiddenApi.HiddenUrls.Split(',').ToArray();
+                        if (hiddenUrls.Any(hiddenUrl => apiDescription.RelativePath.IndexOf(hiddenUrl, StringComparison.OrdinalIgnoreCase) != -1))
                         {
-                            var xmlFiles = new DirectoryInfo(plusPath).GetFiles("*.xml");
-                            foreach (var item in xmlFiles)
-                            {
-                                paths.Add(item.FullName);
-                            }
+                            return false;
                         }
                     }
+
+                    var doc = docConfigInfo.SwaggerDocInfos.FirstOrDefault(p =>
+                        p.GroupName == docName);
+                    if (doc == null) return false;
                     
-                    var binXmlFiles = new DirectoryInfo(hostingEnvironment.ContentRootPath).GetFiles("*.xml", hostingEnvironment.EnvironmentName == "Development" ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-                    foreach (var item in binXmlFiles)
+                    //API分组处理
+                    if (!string.IsNullOrEmpty(doc.GroupUrlPrefix))
                     {
-                        paths.Add(item.FullName);
+                        //分组处理:隐藏组Url不一致的接口
+                        return apiDescription.RelativePath.StartsWith(doc.GroupUrlPrefix,
+                            StringComparison.OrdinalIgnoreCase);
                     }
 
-                    foreach (var filePath in paths)
-                    {
-                        options.IncludeXmlComments(filePath);
-                    }
-                    options.DocInclusionPredicate((docName, description) => true);
-                    options.DocumentFilter<HiddenApiFilter>(configuration);
+                    return false;
 
-                    if (configuration["SwaggerDoc:UseFullNameForSchemaId"] != null && bool.Parse(configuration["SwaggerDoc:UseFullNameForSchemaId"]))
-                    {
-                        //使用全名作为架构id
-                        options.CustomSchemaIds(p => p.FullName);
-                    }
                 });
-            }
+
+
+            });
+
+
+
+        }
+
+
+        /// <summary>
+        /// 获取配置信息
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
+        private static SwaggerConfigInfo GetApiDocsConfigInfo(IConfiguration configuration)
+        {
+            //TODO:缓存
+            return configuration?["SwaggerDoc:IsEnabled"] != null
+                ? configuration.GetSection("SwaggerDoc").Get<SwaggerConfigInfo>()
+                : null;
         }
 
         /// <summary>
@@ -97,26 +137,32 @@ namespace Magicodes.SwaggerUI
         /// <param name="configuration"></param>
         public static void UseCustomSwaggerUI(this IApplicationBuilder app, IConfiguration configuration)
         {
-            if (configuration == null || configuration["SwaggerDoc:IsEnabled"] == null)
+            var docConfigInfo = GetApiDocsConfigInfo(configuration);
+            if (docConfigInfo == null) return;
+
+            app.UseSwagger(c =>
             {
-                return;
-            }
-            if (bool.Parse(configuration["SwaggerDoc:IsEnabled"]))
+                if (docConfigInfo.SwaggerDocInfos.Count > 1)
+                    c.RouteTemplate = "swagger/{documentName}/swagger.json";
+            });
+            // 加载swagger-ui 资源 (HTML, JS, CSS etc.)
+            app.UseSwaggerUI(options =>
             {
-                app.UseSwagger(c => { c.RouteTemplate = "{documentName}/swagger.json"; });
-                // 加载swagger-ui 资源 (HTML, JS, CSS etc.)
-                app.UseSwaggerUI(options =>
+                foreach (var doc in docConfigInfo.SwaggerDocInfos)
                 {
-                    options.SwaggerEndpoint($"/{configuration["SwaggerDoc:Name"]}/swagger.json", configuration["SwaggerDoc:Title"] ?? "App API V1");
-                    //允许通过嵌入式资源配置首页
-                    if (!string.IsNullOrWhiteSpace(configuration["SwaggerDoc:ManifestResourceUrl"]))
-                    {
-                        options.IndexStream = () =>
-                        Assembly.Load(configuration["SwaggerDoc:ManifestResourceAssembly"])
-                   .GetManifestResourceStream(configuration["SwaggerDoc:ManifestResourceUrl"]);
-                    }
-                });
-            }
+                    options.SwaggerEndpoint($"/swagger/{doc.GroupName ?? doc.Version}/swagger.json", doc.Title ?? "App API V1");
+                }
+
+                //允许通过嵌入式资源配置首页
+                if (!string.IsNullOrWhiteSpace(docConfigInfo.ManifestResourceUrl) && !string.IsNullOrWhiteSpace(docConfigInfo.ManifestResourceAssembly))
+                {
+                    options.IndexStream = () =>
+                        Assembly.Load(docConfigInfo.ManifestResourceAssembly)
+                            .GetManifestResourceStream(docConfigInfo.ManifestResourceUrl);
+                }
+            });
+
+
         }
     }
 }
