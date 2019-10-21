@@ -55,5 +55,10 @@ namespace Magicodes.SwaggerUI.Models
         /// 分组Url前缀
         /// </summary>
         public string GroupUrlPrefix { get; set; }
+
+        /// <summary>
+        /// 隐藏API配置
+        /// </summary>
+        public HiddenApiConfigInfo HiddenApi { get; set; }
     }
 }

@@ -45,11 +45,13 @@
 
 ### 2019.10.21 
 
-- 【Nuget】Magicodes.SwaggerUI  2.0.2
+- 【Nuget】Magicodes.SwaggerUI  2.0.4
 - 【升级】单个文档不分组，显示所有API
 - 【梳理】梳理目录结构
 - 【修复】修复本地开发环境运行时不加载文档注释的问题
 - 【修改】自动移除GroupUrlPrefix的前后空格以及“/”前缀
+- 【升级】在全局隐藏API的基础上，支持分组API隐藏
+- 【升级】API隐藏支持HTTP方法配置，默认“*”
 
 ### 2019.10.19
 - 【升级】支持API分组，支持非侵入式配置，无需修改代码，仅通过配置即可完成API分组（见下面示例）
@@ -85,12 +87,23 @@
           "Name": "心莱科技Team2",
           "Email": "xinlai@xin-lai.com"
         },
-        "GroupUrlPrefix": "api/app2/"
+        "GroupUrlPrefix": "api/app2/",
+        "HiddenApi": {
+          "IsEnabled": "true",
+          "Urls": [
+            {
+              "Url": "app2/Values/{id}",
+              "HttpMethod": "Delete"
+            }
+          ]
+        }
       }
     ],
     "HiddenApi": {
       "IsEnabled": "true",
-      "HiddenUrls": "app1/Values/{id}"
+      "Urls": [
+        { "Url": "app1/Values/{id}" }
+      ]
     },
     "UseFullNameForSchemaId": "false"
   }

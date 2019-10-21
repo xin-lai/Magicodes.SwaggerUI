@@ -17,15 +17,18 @@
 namespace Magicodes.SwaggerUI.Models
 {
     /// <summary>
-    /// API隐藏配置
+    /// API配置
     /// </summary>
-    public class HiddenApiConfig
+    public class ApiConfigInfo
     {
-        public bool IsEnabled { get; set; }
+        /// <summary>
+        /// 支持部分路径匹配
+        /// </summary>
+        public string Url { get; set; }
 
         /// <summary>
-        /// 多个隐藏路径配置，使用逗号分隔。允许填写部分路径。
+        /// HTTP方法配置（Get、Post），默认“*” 
         /// </summary>
-        public string HiddenUrls { get; set; }
+        public string HttpMethod { get; set; } = "*";
     }
 }

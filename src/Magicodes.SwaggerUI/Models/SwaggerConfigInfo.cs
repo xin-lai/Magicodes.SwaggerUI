@@ -33,7 +33,7 @@ namespace Magicodes.SwaggerUI.Models
         /// <summary>
         /// 隐藏API配置
         /// </summary>
-        public HiddenApiConfig HiddenApi { get; set; }
+        public HiddenApiConfigInfo HiddenApi { get; set; }
 
         /// <summary>
         /// 是否启用API全名

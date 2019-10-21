@@ -1,5 +1,6 @@
 ﻿using Magicodes.SwaggerUI.Models;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
@@ -84,16 +85,8 @@ namespace Magicodes.SwaggerUI
                 //接口分组和隐藏处理
                 options.DocInclusionPredicate((docName, apiDescription) =>
                 {
-                    //API隐藏逻辑处理
-                    if (docConfigInfo.HiddenApi != null && docConfigInfo.HiddenApi.IsEnabled && !string.IsNullOrEmpty(docConfigInfo.HiddenApi.HiddenUrls))
-                    {
-                        //获取隐藏的API路径(允许逗号分隔)
-                        var hiddenUrls = docConfigInfo.HiddenApi.HiddenUrls.Split(',').ToArray();
-                        if (hiddenUrls.Any(hiddenUrl => apiDescription.RelativePath.IndexOf(hiddenUrl, StringComparison.OrdinalIgnoreCase) != -1))
-                        {
-                            return false;
-                        }
-                    }
+                    //全局API隐藏逻辑处理
+                    if (IsHiddenApi(docConfigInfo.HiddenApi, apiDescription)) return false;
 
                     //只有一个配置则不分组
                     if (docConfigInfo.SwaggerDocInfos.Count <= 1)
@@ -108,6 +101,9 @@ namespace Magicodes.SwaggerUI
                         return false;
                     }
 
+                    //分组API隐藏逻辑处理
+                    if (IsHiddenApi(doc.HiddenApi, apiDescription)) return false;
+
                     //API分组处理
                     if (!string.IsNullOrEmpty(doc.GroupUrlPrefix))
                     {
@@ -115,16 +111,31 @@ namespace Magicodes.SwaggerUI
                         return apiDescription.RelativePath.StartsWith(doc.GroupUrlPrefix,
                             StringComparison.OrdinalIgnoreCase);
                     }
-
                     return false;
 
                 });
-
-
             });
+        }
 
-
-
+        /// <summary>
+        /// 是否隐藏此API
+        /// </summary>
+        /// <param name="hiddenApiConfigInfo"></param>
+        /// <param name="apiDescription"></param>
+        /// <returns></returns>
+        private static bool IsHiddenApi(HiddenApiConfigInfo hiddenApiConfigInfo, ApiDescription apiDescription)
+        {
+            if (hiddenApiConfigInfo != null && hiddenApiConfigInfo.IsEnabled && hiddenApiConfigInfo.Urls != null && hiddenApiConfigInfo.Urls.Any())
+            {
+                foreach (var item in hiddenApiConfigInfo.Urls)
+                {
+                    if (apiDescription.RelativePath.IndexOf(item.Url?.Trim(), StringComparison.OrdinalIgnoreCase) != -1 && (item.HttpMethod == "*" || apiDescription.HttpMethod.Equals(item.HttpMethod, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>
