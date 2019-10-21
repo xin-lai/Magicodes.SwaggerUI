@@ -1,3 +1,3 @@
 call ./clear.bat
-call ./pack.bat "Magicodes.SwaggerUI.*.nupkg" "../src/Magicodes.SwaggerUI/Magicodes.SwaggerUI/Magicodes.SwaggerUI.csproj"
+call ./pack.bat "Magicodes.SwaggerUI.*.nupkg" "../src/Magicodes.SwaggerUI/Magicodes.SwaggerUI.csproj"
 @pause

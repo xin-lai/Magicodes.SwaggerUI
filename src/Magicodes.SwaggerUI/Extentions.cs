@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+﻿using Magicodes.SwaggerUI.Models;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
@@ -8,10 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Magicodes.SwaggerUI.Models;
-using Microsoft.Extensions.Options;
 
 namespace Magicodes.SwaggerUI
 {
@@ -28,19 +24,25 @@ namespace Magicodes.SwaggerUI
         public static void AddCustomSwaggerGen(this IServiceCollection services, IConfiguration configuration)
         {
             var docConfigInfo = GetApiDocsConfigInfo(configuration);
-            if (docConfigInfo == null) return;
-
-            var webRootDirectory = Path.GetDirectoryName(typeof(Extentions).Assembly.Location);
+            if (docConfigInfo == null)
+            {
+                return;
+            }
+            var webRootDirectory = GetRootPath();
             //设置API文档生成
             services.AddSwaggerGen(options =>
             {
                 //将所有枚举显示为字符串
                 if (docConfigInfo.DescribeAllEnumsAsStrings)
+                {
                     options.DescribeAllEnumsAsStrings();
+                }
 
                 if (docConfigInfo.Authorize)
+                {
                     //以便于在界面上显示验证（Authorize）按钮，验证按钮处理逻辑基于 wwwroot/swagger/ui/index.html
                     options.AddSecurityDefinition("Bearer", new BasicAuthScheme());
+                }
 
                 if (docConfigInfo.UseFullNameForSchemaId)
                 {
@@ -101,7 +103,10 @@ namespace Magicodes.SwaggerUI
 
                     var doc = docConfigInfo.SwaggerDocInfos.FirstOrDefault(p =>
                         p.GroupName == docName);
-                    if (doc == null) return false;
+                    if (doc == null)
+                    {
+                        return false;
+                    }
 
                     //API分组处理
                     if (!string.IsNullOrEmpty(doc.GroupUrlPrefix))
@@ -122,6 +127,19 @@ namespace Magicodes.SwaggerUI
 
         }
 
+        /// <summary>
+        /// 获取文件根路径
+        /// </summary>
+        /// <returns></returns>
+        private static string GetRootPath()
+        {
+            var path = AppDomain.CurrentDomain.BaseDirectory;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            }
+            return path;
+        }
 
         /// <summary>
         /// 获取配置信息
@@ -130,10 +148,20 @@ namespace Magicodes.SwaggerUI
         /// <returns></returns>
         private static SwaggerConfigInfo GetApiDocsConfigInfo(IConfiguration configuration)
         {
-            //TODO:缓存
-            return configuration?["SwaggerDoc:IsEnabled"] != null
+            var configs = configuration?["SwaggerDoc:IsEnabled"] != null
                 ? configuration.GetSection("SwaggerDoc").Get<SwaggerConfigInfo>()
                 : null;
+            if (configs.SwaggerDocInfos != null)
+            {
+                foreach (var item in configs.SwaggerDocInfos)
+                {
+                    if (!string.IsNullOrWhiteSpace(item.GroupUrlPrefix))
+                    {
+                        item.GroupUrlPrefix = item.GroupUrlPrefix.Trim().TrimStart('/');
+                    }
+                }
+            }
+            return configs;
         }
 
         /// <summary>
@@ -144,12 +172,17 @@ namespace Magicodes.SwaggerUI
         public static void UseCustomSwaggerUI(this IApplicationBuilder app, IConfiguration configuration)
         {
             var docConfigInfo = GetApiDocsConfigInfo(configuration);
-            if (docConfigInfo == null) return;
+            if (docConfigInfo == null)
+            {
+                return;
+            }
 
             app.UseSwagger(c =>
             {
                 if (docConfigInfo.SwaggerDocInfos.Count > 1)
+                {
                     c.RouteTemplate = "swagger/{documentName}/swagger.json";
+                }
             });
             // 加载swagger-ui 资源 (HTML, JS, CSS etc.)
             app.UseSwaggerUI(options =>
