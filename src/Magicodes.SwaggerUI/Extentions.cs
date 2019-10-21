@@ -93,10 +93,16 @@ namespace Magicodes.SwaggerUI
                         }
                     }
 
+                    //只有一个配置则不分组
+                    if (docConfigInfo.SwaggerDocInfos.Count <= 1)
+                    {
+                        return true;
+                    }
+
                     var doc = docConfigInfo.SwaggerDocInfos.FirstOrDefault(p =>
                         p.GroupName == docName);
                     if (doc == null) return false;
-                    
+
                     //API分组处理
                     if (!string.IsNullOrEmpty(doc.GroupUrlPrefix))
                     {
