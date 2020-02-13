@@ -344,9 +344,13 @@ namespace Magicodes.SwaggerUI
                 //允许通过嵌入式资源配置首页
                 if (!string.IsNullOrWhiteSpace(docConfigInfo.ManifestResourceUrl) && !string.IsNullOrWhiteSpace(docConfigInfo.ManifestResourceAssembly))
                 {
-                    options.IndexStream = () =>
-                        Assembly.Load(docConfigInfo.ManifestResourceAssembly)
+                    var resStream = Assembly.Load(docConfigInfo.ManifestResourceAssembly)
                             .GetManifestResourceStream(docConfigInfo.ManifestResourceUrl);
+                    if (resStream == null)
+                    {
+                        throw new Exception($"{docConfigInfo.ManifestResourceUrl} 不存在，请检查！");
+                    }
+                    options.IndexStream = () => resStream;
                 }
             });
 

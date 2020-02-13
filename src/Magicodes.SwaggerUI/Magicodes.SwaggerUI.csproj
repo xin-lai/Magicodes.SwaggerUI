@@ -15,8 +15,8 @@
       开源库地址:https://github.com/xin-lai
       博客地址：http://www.cnblogs.com/codelove/ 
       交流QQ群：85318032
-      小店地址：https://shop113059108.taobao.com/
     </Description>
+    <RepositoryUrl>https://github.com/xin-lai/Magicodes.SwaggerUI</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.0" />
