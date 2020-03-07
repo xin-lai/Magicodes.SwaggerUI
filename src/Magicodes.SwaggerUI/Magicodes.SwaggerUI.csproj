@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp2.2;netstandard2.0</TargetFrameworks>
     <Description>SwaggerUI扩展</Description>
-    <Version>3.0.1</Version>
+    <Version>3.0.2</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>湖南心莱信息科技有限公司</Company>
     <PackageProjectUrl>http://www.cnblogs.com/codelove/</PackageProjectUrl>
@@ -17,7 +17,12 @@
       交流QQ群：85318032
     </Description>
     <RepositoryUrl>https://github.com/xin-lai/Magicodes.SwaggerUI</RepositoryUrl>
+    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
   </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2' ">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
+  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />

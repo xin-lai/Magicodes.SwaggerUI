@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 #endif
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,7 +28,7 @@ namespace Magicodes.SwaggerUI
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configuration"></param>
-        public static void AddCustomSwaggerGen(this IServiceCollection services, IConfiguration configuration)
+        public static void AddMagicodesSwaggerGen(this IServiceCollection services, IConfiguration configuration, Action<SwaggerGenOptions, SwaggerConfigInfo> setupAction = null)
         {
             var docConfigInfo = GetApiDocsConfigInfo(configuration);
             if (docConfigInfo == null)
@@ -148,6 +149,8 @@ namespace Magicodes.SwaggerUI
                     return false;
 
                 });
+
+                setupAction?.Invoke(options, docConfigInfo);
             });
         }
 #else
@@ -156,7 +159,7 @@ namespace Magicodes.SwaggerUI
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configuration"></param>
-        public static void AddCustomSwaggerGen(this IServiceCollection services, IConfiguration configuration)
+        public static void AddMagicodesSwaggerGen(this IServiceCollection services, IConfiguration configuration,Action<SwaggerGenOptions, SwaggerConfigInfo> setupAction = null)
         {
             var docConfigInfo = GetApiDocsConfigInfo(configuration);
             if (docConfigInfo == null)
@@ -248,6 +251,8 @@ namespace Magicodes.SwaggerUI
                     return false;
 
                 });
+
+                setupAction?.Invoke(options, docConfigInfo);
             });
         }
 
@@ -318,7 +323,7 @@ namespace Magicodes.SwaggerUI
         /// </summary>
         /// <param name="app"></param>
         /// <param name="configuration"></param>
-        public static void UseCustomSwaggerUI(this IApplicationBuilder app, IConfiguration configuration)
+        public static void UseMagicodesSwaggerUI(this IApplicationBuilder app, IConfiguration configuration, Action<SwaggerUIOptions, SwaggerConfigInfo> setupAction = null)
         {
             var docConfigInfo = GetApiDocsConfigInfo(configuration);
             if (docConfigInfo == null)
@@ -352,6 +357,8 @@ namespace Magicodes.SwaggerUI
                     }
                     options.IndexStream = () => resStream;
                 }
+
+                setupAction?.Invoke(options, docConfigInfo);
             });
 
 

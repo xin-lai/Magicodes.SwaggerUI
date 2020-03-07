@@ -28,7 +28,7 @@ namespace ApiGroupTestHost
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             //添加自定义API文档生成(支持文档配置)
-            services.AddCustomSwaggerGen(Configuration);
+            services.AddMagicodesSwaggerGen(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,7 +44,7 @@ namespace ApiGroupTestHost
                 "{controller=Home}/{action=Index}/{id?}"));
 
             //启用自定义API文档(支持文档配置)
-            app.UseCustomSwaggerUI(Configuration);
+            app.UseMagicodesSwaggerUI(Configuration);
         }
     }
 }
