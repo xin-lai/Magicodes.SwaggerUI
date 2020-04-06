@@ -9,6 +9,8 @@
 
 支持.NET Core 2.2和3.1。版本日志和使用教程见下文。
 
+注意：AddCustomSwaggerGen和UseCustomSwaggerUI已分别替换为“AddMagicodesSwaggerGen”、“UseMagicodesSwaggerUI”。
+
 ## 特点
 - 通过配置文件简单配置即可完成SwaggerUI的API格式JSON生成和集成
 ![](./res/3.png "图3")
@@ -99,8 +101,8 @@
 - 【Nuget】Magicodes.SwaggerUI  3.0.2
 - 【升级】支持.NET Core 3.1
 - 【重构】支持自定义逻辑编写：
-    - AddCustomSwaggerGen添加Action<SwaggerGenOptions, SwaggerConfigInfo>参数，可以实现自定义逻辑
-    - UseCustomSwaggerUI添加Action<SwaggerUIOptions, SwaggerConfigInfo>参数，可以实现自定义逻辑
+    - AddMagicodesSwaggerGen添加Action<SwaggerGenOptions, SwaggerConfigInfo>参数，可以实现自定义逻辑
+    - UseMagicodesSwaggerUI添加Action<SwaggerUIOptions, SwaggerConfigInfo>参数，可以实现自定义逻辑
 
 ### 2019.10.21 
 
@@ -174,12 +176,12 @@
 //添加自定义API文档生成(支持文档配置)
 public IServiceProvider ConfigureServices(IServiceCollection services)
 {
-services.AddCustomSwaggerGen(_appConfiguration);
+services.AddMagicodesSwaggerGen(_appConfiguration);
 }
 
 public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
 {
 //启用自定义API文档(支持文档配置)
-app.UseCustomSwaggerUI(_appConfiguration);
+app.UseMagicodesSwaggerUI(_appConfiguration);
 }
 ```
