@@ -13,6 +13,11 @@ namespace Magicodes.SwaggerUI
     {
         public void Apply(OpenApiSchema schema, SchemaFilterContext context)
         {
+            if (context.Type == null)
+            {
+                return;
+            }
+
             var type = Nullable.GetUnderlyingType(context.Type) ?? context.Type;
             if (!type.IsEnum || schema.Extensions.ContainsKey("x-enumNames"))
             {

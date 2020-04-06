@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;netcoreapp2.2;netstandard2.0</TargetFrameworks>
     <Description>SwaggerUI扩展</Description>
-    <Version>3.0.2</Version>
+    <Version>3.0.3</Version>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>湖南心莱信息科技有限公司</Company>
     <PackageProjectUrl>http://www.cnblogs.com/codelove/</PackageProjectUrl>

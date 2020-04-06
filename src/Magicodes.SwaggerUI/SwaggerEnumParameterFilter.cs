@@ -14,6 +14,11 @@ namespace Magicodes.SwaggerUI
     {
         public void Apply(OpenApiParameter parameter, ParameterFilterContext context)
         {
+            if (context.ApiParameterDescription.Type == null)
+            {
+                return;
+            }
+
             var type = Nullable.GetUnderlyingType(context.ApiParameterDescription.Type) ?? context.ApiParameterDescription.Type;
             if (type.IsEnum)
             {
